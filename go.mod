@@ -3,6 +3,7 @@ module github.com/kzpolicy/user
 go 1.14
 
 require (
+	github.com/PuerkitoBio/goquery v1.5.1 // indirect
 	github.com/appleboy/gin-jwt v2.5.0+incompatible
 	github.com/appleboy/gin-jwt/v2 v2.6.4 // indirect
 	github.com/clipperhouse/fsnotify v1.1.0 // indirect
@@ -18,6 +19,7 @@ require (
 	github.com/labstack/echo v3.3.10+incompatible // indirect
 	github.com/labstack/gommon v0.3.0 // indirect
 	github.com/pelletier/go-toml v1.8.0 // indirect
+	github.com/saintfish/chardet v0.0.0-20120816061221-3af4cd4741ca // indirect
 	github.com/spf13/cast v1.3.1 // indirect
 	github.com/spf13/cobra v1.0.0 // indirect
 	github.com/spf13/jwalterweatherman v1.1.0 // indirect
@@ -27,7 +29,7 @@ require (
 	github.com/volatiletech/null v8.0.0+incompatible // indirect
 	github.com/volatiletech/sqlboiler v3.7.1+incompatible // indirect
 	go.uber.org/zap v1.15.0 // indirect
-	golang.org/x/net v0.0.0-20200625001655-4c5254603344
+	golang.org/x/net v0.0.0-20200930145003-4acb6c075d10
 	golang.org/x/text v0.3.3 // indirect
 	gopkg.in/dgrijalva/jwt-go.v3 v3.2.0 // indirect
 	local.packages/controller v0.0.0-00010101000000-000000000000

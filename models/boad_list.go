@@ -5,8 +5,10 @@ import (
 )
 
 type BoadList struct {
-	User       generated.User                   `json:"user"`
-	Todos      generated.TodoDetailSlice        `json:"todos"`
-	OutputList generated.OutputAchievementSlice `json:"output_list"`
-	InputList  generated.InputAchievementSlice  `json:"input_list"`
+	User       generated.User              `json:"user"`
+	Todos      generated.TodoDetailSlice   `json:"todos"`
+	Output     generated.OutputAchievement `json:"output_list"`
+	Input      generated.InputAchievement  `json:"input_list"`
+	InputPage  PageSummary                 `json:"input_page_summary"`
+	OutputPage PageSummary                 `json:"output_page_summary"`
 }
