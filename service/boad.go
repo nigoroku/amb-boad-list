@@ -41,6 +41,7 @@ func (b *BoadService) FindBoadList() ([]*models.BoadList, error) {
 		user.AccountName = u.AccountName
 		user.AccountImg = u.AccountImg
 		user.Introduction = u.Introduction
+		user.ContentType = u.ContentType
 		boad.User = user
 		if len(t) > 0 {
 			boad.Todos = t[0].R.TodoDetails

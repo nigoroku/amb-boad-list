@@ -37,6 +37,7 @@ type User struct {
 	ModifiedAt   null.Time   `boil:"modified_at" json:"modified_at,omitempty" toml:"modified_at" yaml:"modified_at,omitempty"`
 	AccountImg   []byte      `boil:"account_img" json:"account_img,omitempty" toml:"account_img" yaml:"account_img,omitempty"`
 	Introduction null.String `boil:"introduction" json:"introduction,omitempty" toml:"introduction" yaml:"introduction,omitempty"`
+	ContentType  null.String `boil:"content_type" json:"content_type,omitempty" toml:"content_type" yaml:"content_type,omitempty"`
 
 	R *userR `boil:"bind" json:"-" toml:"-" yaml:"-"`
 	L userL  `boil:"bind" json:"-" toml:"-" yaml:"-"`
