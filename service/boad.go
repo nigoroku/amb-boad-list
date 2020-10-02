@@ -52,6 +52,7 @@ func (b *BoadService) FindBoadList() ([]*models.BoadList, error) {
 			input.ReferenceURL = in.ReferenceURL
 			input.Summary = in.Summary
 			input.InputTime = in.InputTime
+			input.CreatedAt = in.CreatedAt
 			boad.Input = input
 			scrapingService := NewScrapingService()
 			if in.ReferenceURL.String != "" {
@@ -65,6 +66,7 @@ func (b *BoadService) FindBoadList() ([]*models.BoadList, error) {
 			output.ReferenceURL = ou.ReferenceURL
 			output.Summary = ou.Summary
 			output.OutputTime = ou.OutputTime
+			output.CreatedAt = ou.CreatedAt
 			boad.Output = output
 			scrapingService := NewScrapingService()
 			if ou.ReferenceURL.String != "" {
