@@ -38,6 +38,7 @@ func (b *BoadService) FindBoadList() ([]*models.BoadList, error) {
 		t := r.Todos
 		user := generated.User{}
 		user.UserID = u.UserID
+		user.Email = u.Email
 		user.AccountName = u.AccountName
 		user.AccountImg = u.AccountImg
 		user.Introduction = u.Introduction
@@ -78,7 +79,7 @@ func (b *BoadService) FindBoadList() ([]*models.BoadList, error) {
 	}
 
 	if err != nil {
-		fmt.Println("error %v", err)
+		fmt.Printf("error %v", err)
 		return boadList, err
 	}
 	return boadList, err

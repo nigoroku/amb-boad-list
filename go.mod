@@ -19,6 +19,7 @@ require (
 	github.com/labstack/echo v3.3.10+incompatible // indirect
 	github.com/labstack/gommon v0.3.0 // indirect
 	github.com/pelletier/go-toml v1.8.0 // indirect
+	github.com/pkg/errors v0.8.1
 	github.com/saintfish/chardet v0.0.0-20120816061221-3af4cd4741ca // indirect
 	github.com/spf13/cast v1.3.1 // indirect
 	github.com/spf13/cobra v1.0.0 // indirect
@@ -33,6 +34,7 @@ require (
 	golang.org/x/text v0.3.3 // indirect
 	gopkg.in/dgrijalva/jwt-go.v3 v3.2.0 // indirect
 	local.packages/controller v0.0.0-00010101000000-000000000000
+	local.packages/db v0.0.0-00010101000000-000000000000
 	local.packages/middleware v0.0.0-00010101000000-000000000000
 	local.packages/models v0.0.0-00010101000000-000000000000
 	local.packages/models/generated v0.0.0-00010101000000-000000000000
@@ -48,3 +50,5 @@ replace local.packages/controller => ./controller
 replace local.packages/service => ./service
 
 replace local.packages/models/generated => ./models/generated
+
+replace local.packages/db => ./db

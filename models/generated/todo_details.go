@@ -29,7 +29,7 @@ type TodoDetail struct {
 	CreatedBy    int       `boil:"created_by" json:"created_by" toml:"created_by" yaml:"created_by"`
 	CreatedAt    time.Time `boil:"created_at" json:"created_at" toml:"created_at" yaml:"created_at"`
 	Checked      bool      `boil:"checked" json:"checked" toml:"checked" yaml:"checked"`
-	TodoID       null.Int  `boil:"todo_id" json:"todo_id,omitempty" toml:"todo_id" yaml:"todo_id,omitempty"`
+	TodoID       int       `boil:"todo_id" json:"todo_id,omitempty" toml:"todo_id" yaml:"todo_id,omitempty"`
 	ModifiedBy   null.Int  `boil:"modified_by" json:"modified_by,omitempty" toml:"modified_by" yaml:"modified_by,omitempty"`
 	ModifiedAt   null.Time `boil:"modified_at" json:"modified_at,omitempty" toml:"modified_at" yaml:"modified_at,omitempty"`
 
@@ -556,39 +556,6 @@ func (o *TodoDetail) SetTodo(ctx context.Context, exec boil.ContextExecutor, ins
 	return nil
 }
 
-// RemoveTodo relationship.
-// Sets o.R.Todo to nil.
-// Removes o from all passed in related items' relationships struct (Optional).
-func (o *TodoDetail) RemoveTodo(ctx context.Context, exec boil.ContextExecutor, related *Todo) error {
-	var err error
-
-	queries.SetScanner(&o.TodoID, nil)
-	if _, err = o.Update(ctx, exec, boil.Whitelist("todo_id")); err != nil {
-		return errors.Wrap(err, "failed to update local table")
-	}
-
-	if o.R != nil {
-		o.R.Todo = nil
-	}
-	if related == nil || related.R == nil {
-		return nil
-	}
-
-	for i, ri := range related.R.TodoDetails {
-		if queries.Equal(o.TodoID, ri.TodoID) {
-			continue
-		}
-
-		ln := len(related.R.TodoDetails)
-		if ln > 1 && i < ln-1 {
-			related.R.TodoDetails[i] = related.R.TodoDetails[ln-1]
-		}
-		related.R.TodoDetails = related.R.TodoDetails[:ln-1]
-		break
-	}
-	return nil
-}
-
 // TodoDetails retrieves all the records using an executor.
 func TodoDetails(mods ...qm.QueryMod) todoDetailQuery {
 	mods = append(mods, qm.From("`todo_details`"))
@@ -734,69 +701,6 @@ CacheNoHooks:
 	return o.doAfterInsertHooks(ctx, exec)
 }
 
-// Update uses an executor to update the TodoDetail.
-// See boil.Columns.UpdateColumnSet documentation to understand column list inference for updates.
-// Update does not automatically update the record in case of default values. Use .Reload() to refresh the records.
-func (o *TodoDetail) Update(ctx context.Context, exec boil.ContextExecutor, columns boil.Columns) (int64, error) {
-	var err error
-	if err = o.doBeforeUpdateHooks(ctx, exec); err != nil {
-		return 0, err
-	}
-	key := makeCacheKey(columns, nil)
-	todoDetailUpdateCacheMut.RLock()
-	cache, cached := todoDetailUpdateCache[key]
-	todoDetailUpdateCacheMut.RUnlock()
-
-	if !cached {
-		wl := columns.UpdateColumnSet(
-			todoDetailAllColumns,
-			todoDetailPrimaryKeyColumns,
-		)
-
-		if !columns.IsWhitelist() {
-			wl = strmangle.SetComplement(wl, []string{"created_at"})
-		}
-		if len(wl) == 0 {
-			return 0, errors.New("generated: unable to update todo_details, could not build whitelist")
-		}
-
-		cache.query = fmt.Sprintf("UPDATE `todo_details` SET %s WHERE %s",
-			strmangle.SetParamNames("`", "`", 0, wl),
-			strmangle.WhereClause("`", "`", 0, todoDetailPrimaryKeyColumns),
-		)
-		cache.valueMapping, err = queries.BindMapping(todoDetailType, todoDetailMapping, append(wl, todoDetailPrimaryKeyColumns...))
-		if err != nil {
-			return 0, err
-		}
-	}
-
-	values := queries.ValuesFromMapping(reflect.Indirect(reflect.ValueOf(o)), cache.valueMapping)
-
-	if boil.IsDebug(ctx) {
-		writer := boil.DebugWriterFrom(ctx)
-		fmt.Fprintln(writer, cache.query)
-		fmt.Fprintln(writer, values)
-	}
-	var result sql.Result
-	result, err = exec.ExecContext(ctx, cache.query, values...)
-	if err != nil {
-		return 0, errors.Wrap(err, "generated: unable to update todo_details row")
-	}
-
-	rowsAff, err := result.RowsAffected()
-	if err != nil {
-		return 0, errors.Wrap(err, "generated: failed to get rows affected by update for todo_details")
-	}
-
-	if !cached {
-		todoDetailUpdateCacheMut.Lock()
-		todoDetailUpdateCache[key] = cache
-		todoDetailUpdateCacheMut.Unlock()
-	}
-
-	return rowsAff, o.doAfterUpdateHooks(ctx, exec)
-}
-
 // UpdateAll updates all rows with the specified column values.
 func (q todoDetailQuery) UpdateAll(ctx context.Context, exec boil.ContextExecutor, cols M) (int64, error) {
 	queries.SetUpdate(q.Query, cols)
@@ -811,54 +715,6 @@ func (q todoDetailQuery) UpdateAll(ctx context.Context, exec boil.ContextExecuto
 		return 0, errors.Wrap(err, "generated: unable to retrieve rows affected for todo_details")
 	}
 
-	return rowsAff, nil
-}
-
-// UpdateAll updates all rows with the specified column values, using an executor.
-func (o TodoDetailSlice) UpdateAll(ctx context.Context, exec boil.ContextExecutor, cols M) (int64, error) {
-	ln := int64(len(o))
-	if ln == 0 {
-		return 0, nil
-	}
-
-	if len(cols) == 0 {
-		return 0, errors.New("generated: update all requires at least one column argument")
-	}
-
-	colNames := make([]string, len(cols))
-	args := make([]interface{}, len(cols))
-
-	i := 0
-	for name, value := range cols {
-		colNames[i] = name
-		args[i] = value
-		i++
-	}
-
-	// Append all of the primary key values for each column
-	for _, obj := range o {
-		pkeyArgs := queries.ValuesFromMapping(reflect.Indirect(reflect.ValueOf(obj)), todoDetailPrimaryKeyMapping)
-		args = append(args, pkeyArgs...)
-	}
-
-	sql := fmt.Sprintf("UPDATE `todo_details` SET %s WHERE %s",
-		strmangle.SetParamNames("`", "`", 0, colNames),
-		strmangle.WhereClauseRepeated(string(dialect.LQ), string(dialect.RQ), 0, todoDetailPrimaryKeyColumns, len(o)))
-
-	if boil.IsDebug(ctx) {
-		writer := boil.DebugWriterFrom(ctx)
-		fmt.Fprintln(writer, sql)
-		fmt.Fprintln(writer, args...)
-	}
-	result, err := exec.ExecContext(ctx, sql, args...)
-	if err != nil {
-		return 0, errors.Wrap(err, "generated: unable to update all in todoDetail slice")
-	}
-
-	rowsAff, err := result.RowsAffected()
-	if err != nil {
-		return 0, errors.Wrap(err, "generated: unable to retrieve rows affected all in update all todoDetail")
-	}
 	return rowsAff, nil
 }
 
