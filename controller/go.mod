@@ -1,4 +1,4 @@
-module github.com/kzpolicy/user/controller
+module github.com/nigoroku/amb-boad-list/controller
 
 go 1.14
 

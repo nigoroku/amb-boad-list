@@ -1,4 +1,4 @@
-module github.com/kzpolicy/user/service
+module github.com/nigoroku/amb-boad-list/service
 
 go 1.14
 

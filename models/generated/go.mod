@@ -1,4 +1,4 @@
-module github.com/kzpolicy/boad-list/models/generated
+module github.com/nigoroku/amb-boad-list/models/generated
 
 go 1.14
 

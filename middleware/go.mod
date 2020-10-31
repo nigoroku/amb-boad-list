@@ -1,4 +1,4 @@
-module github.com/kzpolicy/user/middleware
+module github.com/nigoroku/amb-boad-list/middleware
 
 go 1.14
 
