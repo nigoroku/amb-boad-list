@@ -6,6 +6,7 @@ import (
 	"io/ioutil"
 	"net/http"
 	"strings"
+	"unicode/utf8"
 
 	// "github.com/kzpolicy/user/models"
 	"context"
@@ -69,8 +70,8 @@ func (s *ScrapingService) getPageSummary(url string) models.PageSummary {
 			description, _ = s.Attr("content")
 		}
 	})
-	if len(description) > 60 {
-		description = string([]rune(description)[:60])
+	if utf8.RuneCountInString(description) > 300 {
+		description = string([]rune(description)[:300])
 	}
 	page.Description = description + "..."
 	page.Url = url
