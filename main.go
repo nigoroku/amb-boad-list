@@ -38,7 +38,7 @@ func main() {
 		v1 := TimelineRoute.Group("/timeline")
 		{
 			v1.GET("/input", controller.FindInputTimeline)
-			// v1.GET("/output", controller.FindOutputTimeline)
+			v1.GET("/output", controller.FindOutputTimeline)
 		}
 	}
 
