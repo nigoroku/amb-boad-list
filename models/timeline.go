@@ -4,6 +4,10 @@ import (
 	"time"
 
 	"github.com/volatiletech/null"
+	"github.com/volatiletech/sqlboiler/drivers"
+	"github.com/volatiletech/sqlboiler/queries"
+	"github.com/volatiletech/sqlboiler/queries/qm"
+	"local.packages/models/generated"
 )
 
 type Timeline struct {
@@ -19,8 +23,37 @@ type Timeline struct {
 	Summary       null.String `boil:"summary" json:"summary,omitempty" toml:"summary" yaml:"summary,omitempty"`
 	CreatedAt     time.Time   `boil:"created_at" json:"created_at" toml:"created_at" yaml:"created_at"`
 	// カテゴリ
-	CategoryID   null.Int    `boil:"category_id" json:"category_id" toml:"category_id" yaml:"category_id"`
-	CategoryName null.String `boil:"category_name" json:"category_name" toml:"category_name" yaml:"category_name"`
+	CategoryID   null.Int              `boil:"category_id" json:"category_id" toml:"category_id" yaml:"category_id"`
+	CategoryName null.String           `boil:"category_name" json:"category_name" toml:"category_name" yaml:"category_name"`
+	Categories   []generated.MCategory `json:"categories"`
 	// アクション種類
 	ActionType null.String `boil:"action_type" json:"action_type" toml:"action_type" yaml:"action_type"`
+	Lgtm       bool        `json:"lgtm"`
+	Stock      bool        `json:"stock"`
+	// サマリー
+	InputPage  PageSummary `json:"input_page_summary"`
+	OutputPage PageSummary `json:"output_page_summary"`
+}
+
+var dialect = drivers.Dialect{
+	LQ: 0x60,
+	RQ: 0x60,
+
+	UseIndexPlaceholders:    false,
+	UseLastInsertID:         true,
+	UseSchema:               false,
+	UseDefaultKeyword:       false,
+	UseAutoColumns:          false,
+	UseTopClause:            false,
+	UseOutputClause:         false,
+	UseCaseWhenExistsClause: false,
+}
+
+// NewQuery initializes a new Query using the passed in QueryMods
+func NewQuery(mods ...qm.QueryMod) *queries.Query {
+	q := &queries.Query{}
+	queries.SetDialect(q, &dialect)
+	qm.Apply(q, mods...)
+
+	return q
 }

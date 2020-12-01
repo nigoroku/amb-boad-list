@@ -8,8 +8,8 @@ import (
 
 	"github.com/volatiletech/sqlboiler/boil"
 	"github.com/volatiletech/sqlboiler/queries/qm"
-	"local.packages/generated"
 	"local.packages/models"
+	"local.packages/models/generated"
 )
 
 type TimelineService struct {
@@ -55,54 +55,63 @@ func (tl *TimelineService) FindInputTimeline() ([]models.Timeline, error) {
 		order by
 			ia.created_at DESC`
 
-	err := generated.NewQuery(qm.SQL(query)).Bind(tl.ctx, tl.db, &timeline)
-
-	// var timelines []*models.Timeline
-	// for _, u := range users {
-	// 	timeline := &models.Timeline{}
-	// 	r := u.R
-	// 	user := generated.User{}
-	// 	user.UserID = u.UserID
-	// 	user.Email = u.Email
-	// 	user.AccountName = u.AccountName
-	// 	user.AccountImg = u.AccountImg
-	// 	user.Introduction = u.Introduction
-	// 	user.ContentType = u.ContentType
-	// 	timeline.User = user
-	// 	if len(r.InputAchievements) > 0 {
-	// 		input := generated.InputAchievement{}
-	// 		in := r.InputAchievements[0]
-	// 		input.ReferenceURL = in.ReferenceURL
-	// 		input.Summary = in.Summary
-	// 		input.InputTime = in.InputTime
-	// 		input.CreatedAt = in.CreatedAt
-	// 		timeline.Input = input
-	// 		scrapingService := NewScrapingService()
-	// 		if in.ReferenceURL.String != "" {
-	// 			pageSummary := scrapingService.getPageSummary(in.ReferenceURL.String)
-	// 			timeline.InputPage = pageSummary
-	// 		}
-	// 	}
-	// if len(r.OutputAchievements) > 0 {
-	// 	output := generated.OutputAchievement{}
-	// 	ou := r.OutputAchievements[0]
-	// 	output.ReferenceURL = ou.ReferenceURL
-	// 	output.Summary = ou.Summary
-	// 	output.OutputTime = ou.OutputTime
-	// 	output.CreatedAt = ou.CreatedAt
-	// 	timeline.Output = output
-	// 	scrapingService := NewScrapingService()
-	// 	if ou.ReferenceURL.String != "" {
-	// 		pageSummary := scrapingService.getPageSummary(ou.ReferenceURL.String)
-	// 		timeline.OutputPage = pageSummary
-	// 	}
-	// }
-	// 	timelines = append(timelines, timeline)
-	// }
+	err := models.NewQuery(qm.SQL(query)).Bind(tl.ctx, tl.db, &timeline)
 
 	if err != nil {
 		fmt.Printf("error %v", err)
-		return timeline, err
+		return nil, err
 	}
-	return timeline, err
+
+	lines := make(map[int]models.Timeline)
+	for _, tl := range timeline {
+
+		if val, ok := lines[tl.AchievementID]; ok {
+			// アクション設定
+			if !val.Lgtm {
+				val.Lgtm = tl.ActionType.String == "1"
+			}
+			if !val.Stock {
+				val.Stock = tl.ActionType.String == "2"
+			}
+			// カテゴリ設定
+			if tl.CategoryID.Int != 0 {
+				var ca generated.MCategory
+				ca.CategoryID = tl.CategoryID.Int
+				ca.Name = tl.CategoryName.String
+
+				cas := val.Categories
+				cas = append(cas, ca)
+			}
+			lines[tl.AchievementID] = val
+			continue
+		}
+
+		var ca generated.MCategory
+		var cas []generated.MCategory
+		if tl.CategoryID.Int != 0 {
+			ca.CategoryID = tl.CategoryID.Int
+			ca.Name = tl.CategoryName.String
+		}
+		cas = append(cas, ca)
+		tl.Categories = cas
+
+		if tl.ReferenceURL.String != "" {
+			// 参考URLからスクレイピングしてページ情報を取得する
+			scrapingService := NewScrapingService()
+			pageSummary := scrapingService.getPageSummary(tl.ReferenceURL.String)
+			tl.InputPage = pageSummary
+		}
+
+		lines[tl.AchievementID] = tl
+	}
+
+	return values(lines), err
+}
+
+func values(m map[int]models.Timeline) []models.Timeline {
+	vs := []models.Timeline{}
+	for _, v := range m {
+		vs = append(vs, v)
+	}
+	return vs
 }
