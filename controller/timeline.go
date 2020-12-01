@@ -10,10 +10,10 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-func FindBoadList(c *gin.Context) {
+func FindInputTimeline(c *gin.Context) {
 
-	boadService := service.NewBoadService()
-	users, err := boadService.FindBoadList()
+	timelineService := service.NewTimelineService()
+	timeline, err := timelineService.FindInputTimeline()
 
 	if err != nil {
 		fmt.Println(err)
@@ -25,7 +25,7 @@ func FindBoadList(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, gin.H{
-		"message":   "ok",
-		"boad_list": users,
+		"message":  "ok",
+		"timeline": timeline,
 	})
 }

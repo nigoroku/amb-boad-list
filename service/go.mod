@@ -15,10 +15,4 @@ require (
 	github.com/volatiletech/sqlboiler v3.7.1+incompatible
 	golang.org/x/crypto v0.0.0-20200820211705-5c72a883971a
 	golang.org/x/net v0.0.0-20200202094626-16171245cfb2
-	local.packages/models v0.0.0-00010101000000-000000000000
-	local.packages/models/generated v0.0.0-00010101000000-000000000000
 )
-
-replace local.packages/models => ./../models
-
-replace local.packages/models/generated => ./../models/generated

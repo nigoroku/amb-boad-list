@@ -1,6 +1,8 @@
 package main
 
 import (
+	"os"
+
 	"github.com/gin-contrib/cors"
 
 	// "github.com/kzpolicy/user/controller"
@@ -24,18 +26,19 @@ func main() {
 
 	// CORS 対応
 	config := cors.DefaultConfig()
-	config.AllowOrigins = []string{"http://localhost:3000"}
+	config.AllowOrigins = []string{"*"}
 	r.Use(cors.New(config))
 
 	// DB接続
 	db.Init()
 
 	// ルーティング
-	TodoRoute := r.Group("/api/v1")
+	TimelineRoute := r.Group("/api/v1")
 	{
-		v1 := TodoRoute.Group("/boad")
+		v1 := TimelineRoute.Group("/timeline")
 		{
-			v1.GET("/list", controller.FindBoadList)
+			v1.GET("/input", controller.FindInputTimeline)
+			// v1.GET("/output", controller.FindOutputTimeline)
 		}
 	}
 
@@ -45,6 +48,11 @@ func main() {
 		})
 	})
 
-	// TODO:環境変数に設定する
-	r.Run(":8084")
+	// 起動ポートを環境変数から取得
+	port := os.Getenv("SERVER_PORT")
+	if port == "" {
+		port = "8084"
+	}
+
+	r.Run(":" + port)
 }
