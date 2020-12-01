@@ -57,3 +57,18 @@ func NewQuery(mods ...qm.QueryMod) *queries.Query {
 
 	return q
 }
+
+// TimelineSlice ソート用スライス
+type TimelineSlice []*Timeline
+
+func (p TimelineSlice) Len() int {
+	return len(p)
+}
+
+func (p TimelineSlice) Swap(i, j int) {
+	p[i], p[j] = p[j], p[i]
+}
+
+func (p TimelineSlice) Less(i, j int) bool {
+	return p[i].CreatedAt.After(p[j].CreatedAt)
+}

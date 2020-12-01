@@ -2,6 +2,7 @@ package service
 
 import (
 	"fmt"
+	"sort"
 
 	// "github.com/kzpolicy/user/models"
 	"context"
@@ -12,11 +13,13 @@ import (
 	"local.packages/models/generated"
 )
 
+// TimelineService タイムラインサービス
 type TimelineService struct {
 	ctx context.Context
 	db  boil.ContextExecutor
 }
 
+// NewTimelineService コンストラクタ
 func NewTimelineService() *TimelineService {
 	ctx := context.Background()
 	// DB作成
@@ -25,9 +28,10 @@ func NewTimelineService() *TimelineService {
 	return &TimelineService{ctx, db}
 }
 
-func (tl *TimelineService) FindInputTimeline() ([]models.Timeline, error) {
+// FindInputTimeline input実績のタイムラインに表示するデータを取得する
+func (tl *TimelineService) FindInputTimeline() ([]*models.Timeline, error) {
 
-	var timeline []models.Timeline
+	timeline := models.TimelineSlice{}
 	var query = `
 			select
 			u.user_id,
@@ -62,7 +66,7 @@ func (tl *TimelineService) FindInputTimeline() ([]models.Timeline, error) {
 		return nil, err
 	}
 
-	lines := make(map[int]models.Timeline)
+	lines := make(map[int]*models.Timeline)
 	for _, tl := range timeline {
 
 		if val, ok := lines[tl.AchievementID]; ok {
@@ -108,9 +112,10 @@ func (tl *TimelineService) FindInputTimeline() ([]models.Timeline, error) {
 	return values(lines), err
 }
 
-func (tl *TimelineService) FindOutputTimeline() ([]models.Timeline, error) {
+// FindOutputTimeline output実績のタイムラインに表示するデータを取得する
+func (tl *TimelineService) FindOutputTimeline() ([]*models.Timeline, error) {
 
-	var timeline []models.Timeline
+	timeline := models.TimelineSlice{}
 	var query = `
 			select
 			u.user_id,
@@ -145,7 +150,7 @@ func (tl *TimelineService) FindOutputTimeline() ([]models.Timeline, error) {
 		return nil, err
 	}
 
-	lines := make(map[int]models.Timeline)
+	lines := make(map[int]*models.Timeline)
 	for _, tl := range timeline {
 
 		if val, ok := lines[tl.AchievementID]; ok {
@@ -191,10 +196,11 @@ func (tl *TimelineService) FindOutputTimeline() ([]models.Timeline, error) {
 	return values(lines), err
 }
 
-func values(m map[int]models.Timeline) []models.Timeline {
-	vs := []models.Timeline{}
+func values(m map[int]*models.Timeline) []*models.Timeline {
+	line := models.TimelineSlice{}
 	for _, v := range m {
-		vs = append(vs, v)
+		line = append(line, v)
 	}
-	return vs
+	sort.Sort(line)
+	return line
 }
