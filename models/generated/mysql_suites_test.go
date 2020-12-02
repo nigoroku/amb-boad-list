@@ -6,15 +6,21 @@ package generated
 import "testing"
 
 func TestUpsert(t *testing.T) {
+	t.Run("InputAchievementActions", testInputAchievementActionsUpsert)
+
 	t.Run("InputAchievementTags", testInputAchievementTagsUpsert)
 
 	t.Run("InputAchievements", testInputAchievementsUpsert)
 
 	t.Run("MCategories", testMCategoriesUpsert)
 
+	t.Run("OutputAchievementActions", testOutputAchievementActionsUpsert)
+
 	t.Run("OutputAchievementTags", testOutputAchievementTagsUpsert)
 
 	t.Run("OutputAchievements", testOutputAchievementsUpsert)
+
+	t.Run("ShareTokens", testShareTokensUpsert)
 
 	t.Run("TodoDetails", testTodoDetailsUpsert)
 

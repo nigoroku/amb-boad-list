@@ -705,6 +705,76 @@ func (o *Todo) AddTodoDetails(ctx context.Context, exec boil.ContextExecutor, in
 	return nil
 }
 
+// SetTodoDetails removes all previously related items of the
+// todo replacing them completely with the passed
+// in related items, optionally inserting them as new records.
+// Sets o.R.Todo's TodoDetails accordingly.
+// Replaces o.R.TodoDetails with related.
+// Sets related.R.Todo's TodoDetails accordingly.
+func (o *Todo) SetTodoDetails(ctx context.Context, exec boil.ContextExecutor, insert bool, related ...*TodoDetail) error {
+	query := "update `todo_details` set `todo_id` = null where `todo_id` = ?"
+	values := []interface{}{o.TodoID}
+	if boil.IsDebug(ctx) {
+		writer := boil.DebugWriterFrom(ctx)
+		fmt.Fprintln(writer, query)
+		fmt.Fprintln(writer, values)
+	}
+	_, err := exec.ExecContext(ctx, query, values...)
+	if err != nil {
+		return errors.Wrap(err, "failed to remove relationships before set")
+	}
+
+	if o.R != nil {
+		for _, rel := range o.R.TodoDetails {
+			queries.SetScanner(&rel.TodoID, nil)
+			if rel.R == nil {
+				continue
+			}
+
+			rel.R.Todo = nil
+		}
+
+		o.R.TodoDetails = nil
+	}
+	return o.AddTodoDetails(ctx, exec, insert, related...)
+}
+
+// RemoveTodoDetails relationships from objects passed in.
+// Removes related items from R.TodoDetails (uses pointer comparison, removal does not keep order)
+// Sets related.R.Todo.
+func (o *Todo) RemoveTodoDetails(ctx context.Context, exec boil.ContextExecutor, related ...*TodoDetail) error {
+	var err error
+	for _, rel := range related {
+		queries.SetScanner(&rel.TodoID, nil)
+		if rel.R != nil {
+			rel.R.Todo = nil
+		}
+		if _, err = rel.Update(ctx, exec, boil.Whitelist("todo_id")); err != nil {
+			return err
+		}
+	}
+	if o.R == nil {
+		return nil
+	}
+
+	for _, rel := range related {
+		for i, ri := range o.R.TodoDetails {
+			if rel != ri {
+				continue
+			}
+
+			ln := len(o.R.TodoDetails)
+			if ln > 1 && i < ln-1 {
+				o.R.TodoDetails[i] = o.R.TodoDetails[ln-1]
+			}
+			o.R.TodoDetails = o.R.TodoDetails[:ln-1]
+			break
+		}
+	}
+
+	return nil
+}
+
 // Todos retrieves all the records using an executor.
 func Todos(mods ...qm.QueryMod) todoQuery {
 	mods = append(mods, qm.From("`todos`"))

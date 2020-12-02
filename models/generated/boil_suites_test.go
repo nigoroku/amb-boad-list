@@ -12,137 +12,176 @@ import "testing"
 // It does NOT run each operation group in parallel.
 // Separating the tests thusly grants avoidance of Postgres deadlocks.
 func TestParent(t *testing.T) {
+	t.Run("InputAchievementActions", testInputAchievementActions)
 	t.Run("InputAchievementTags", testInputAchievementTags)
 	t.Run("InputAchievements", testInputAchievements)
 	t.Run("MCategories", testMCategories)
+	t.Run("OutputAchievementActions", testOutputAchievementActions)
 	t.Run("OutputAchievementTags", testOutputAchievementTags)
 	t.Run("OutputAchievements", testOutputAchievements)
+	t.Run("ShareTokens", testShareTokens)
 	t.Run("TodoDetails", testTodoDetails)
 	t.Run("Todos", testTodos)
 	t.Run("Users", testUsers)
 }
 
 func TestDelete(t *testing.T) {
+	t.Run("InputAchievementActions", testInputAchievementActionsDelete)
 	t.Run("InputAchievementTags", testInputAchievementTagsDelete)
 	t.Run("InputAchievements", testInputAchievementsDelete)
 	t.Run("MCategories", testMCategoriesDelete)
+	t.Run("OutputAchievementActions", testOutputAchievementActionsDelete)
 	t.Run("OutputAchievementTags", testOutputAchievementTagsDelete)
 	t.Run("OutputAchievements", testOutputAchievementsDelete)
+	t.Run("ShareTokens", testShareTokensDelete)
 	t.Run("TodoDetails", testTodoDetailsDelete)
 	t.Run("Todos", testTodosDelete)
 	t.Run("Users", testUsersDelete)
 }
 
 func TestQueryDeleteAll(t *testing.T) {
+	t.Run("InputAchievementActions", testInputAchievementActionsQueryDeleteAll)
 	t.Run("InputAchievementTags", testInputAchievementTagsQueryDeleteAll)
 	t.Run("InputAchievements", testInputAchievementsQueryDeleteAll)
 	t.Run("MCategories", testMCategoriesQueryDeleteAll)
+	t.Run("OutputAchievementActions", testOutputAchievementActionsQueryDeleteAll)
 	t.Run("OutputAchievementTags", testOutputAchievementTagsQueryDeleteAll)
 	t.Run("OutputAchievements", testOutputAchievementsQueryDeleteAll)
+	t.Run("ShareTokens", testShareTokensQueryDeleteAll)
 	t.Run("TodoDetails", testTodoDetailsQueryDeleteAll)
 	t.Run("Todos", testTodosQueryDeleteAll)
 	t.Run("Users", testUsersQueryDeleteAll)
 }
 
 func TestSliceDeleteAll(t *testing.T) {
+	t.Run("InputAchievementActions", testInputAchievementActionsSliceDeleteAll)
 	t.Run("InputAchievementTags", testInputAchievementTagsSliceDeleteAll)
 	t.Run("InputAchievements", testInputAchievementsSliceDeleteAll)
 	t.Run("MCategories", testMCategoriesSliceDeleteAll)
+	t.Run("OutputAchievementActions", testOutputAchievementActionsSliceDeleteAll)
 	t.Run("OutputAchievementTags", testOutputAchievementTagsSliceDeleteAll)
 	t.Run("OutputAchievements", testOutputAchievementsSliceDeleteAll)
+	t.Run("ShareTokens", testShareTokensSliceDeleteAll)
 	t.Run("TodoDetails", testTodoDetailsSliceDeleteAll)
 	t.Run("Todos", testTodosSliceDeleteAll)
 	t.Run("Users", testUsersSliceDeleteAll)
 }
 
 func TestExists(t *testing.T) {
+	t.Run("InputAchievementActions", testInputAchievementActionsExists)
 	t.Run("InputAchievementTags", testInputAchievementTagsExists)
 	t.Run("InputAchievements", testInputAchievementsExists)
 	t.Run("MCategories", testMCategoriesExists)
+	t.Run("OutputAchievementActions", testOutputAchievementActionsExists)
 	t.Run("OutputAchievementTags", testOutputAchievementTagsExists)
 	t.Run("OutputAchievements", testOutputAchievementsExists)
+	t.Run("ShareTokens", testShareTokensExists)
 	t.Run("TodoDetails", testTodoDetailsExists)
 	t.Run("Todos", testTodosExists)
 	t.Run("Users", testUsersExists)
 }
 
 func TestFind(t *testing.T) {
+	t.Run("InputAchievementActions", testInputAchievementActionsFind)
 	t.Run("InputAchievementTags", testInputAchievementTagsFind)
 	t.Run("InputAchievements", testInputAchievementsFind)
 	t.Run("MCategories", testMCategoriesFind)
+	t.Run("OutputAchievementActions", testOutputAchievementActionsFind)
 	t.Run("OutputAchievementTags", testOutputAchievementTagsFind)
 	t.Run("OutputAchievements", testOutputAchievementsFind)
+	t.Run("ShareTokens", testShareTokensFind)
 	t.Run("TodoDetails", testTodoDetailsFind)
 	t.Run("Todos", testTodosFind)
 	t.Run("Users", testUsersFind)
 }
 
 func TestBind(t *testing.T) {
+	t.Run("InputAchievementActions", testInputAchievementActionsBind)
 	t.Run("InputAchievementTags", testInputAchievementTagsBind)
 	t.Run("InputAchievements", testInputAchievementsBind)
 	t.Run("MCategories", testMCategoriesBind)
+	t.Run("OutputAchievementActions", testOutputAchievementActionsBind)
 	t.Run("OutputAchievementTags", testOutputAchievementTagsBind)
 	t.Run("OutputAchievements", testOutputAchievementsBind)
+	t.Run("ShareTokens", testShareTokensBind)
 	t.Run("TodoDetails", testTodoDetailsBind)
 	t.Run("Todos", testTodosBind)
 	t.Run("Users", testUsersBind)
 }
 
 func TestOne(t *testing.T) {
+	t.Run("InputAchievementActions", testInputAchievementActionsOne)
 	t.Run("InputAchievementTags", testInputAchievementTagsOne)
 	t.Run("InputAchievements", testInputAchievementsOne)
 	t.Run("MCategories", testMCategoriesOne)
+	t.Run("OutputAchievementActions", testOutputAchievementActionsOne)
 	t.Run("OutputAchievementTags", testOutputAchievementTagsOne)
 	t.Run("OutputAchievements", testOutputAchievementsOne)
+	t.Run("ShareTokens", testShareTokensOne)
 	t.Run("TodoDetails", testTodoDetailsOne)
 	t.Run("Todos", testTodosOne)
 	t.Run("Users", testUsersOne)
 }
 
 func TestAll(t *testing.T) {
+	t.Run("InputAchievementActions", testInputAchievementActionsAll)
 	t.Run("InputAchievementTags", testInputAchievementTagsAll)
 	t.Run("InputAchievements", testInputAchievementsAll)
 	t.Run("MCategories", testMCategoriesAll)
+	t.Run("OutputAchievementActions", testOutputAchievementActionsAll)
 	t.Run("OutputAchievementTags", testOutputAchievementTagsAll)
 	t.Run("OutputAchievements", testOutputAchievementsAll)
+	t.Run("ShareTokens", testShareTokensAll)
 	t.Run("TodoDetails", testTodoDetailsAll)
 	t.Run("Todos", testTodosAll)
 	t.Run("Users", testUsersAll)
 }
 
 func TestCount(t *testing.T) {
+	t.Run("InputAchievementActions", testInputAchievementActionsCount)
 	t.Run("InputAchievementTags", testInputAchievementTagsCount)
 	t.Run("InputAchievements", testInputAchievementsCount)
 	t.Run("MCategories", testMCategoriesCount)
+	t.Run("OutputAchievementActions", testOutputAchievementActionsCount)
 	t.Run("OutputAchievementTags", testOutputAchievementTagsCount)
 	t.Run("OutputAchievements", testOutputAchievementsCount)
+	t.Run("ShareTokens", testShareTokensCount)
 	t.Run("TodoDetails", testTodoDetailsCount)
 	t.Run("Todos", testTodosCount)
 	t.Run("Users", testUsersCount)
 }
 
 func TestHooks(t *testing.T) {
+	t.Run("InputAchievementActions", testInputAchievementActionsHooks)
 	t.Run("InputAchievementTags", testInputAchievementTagsHooks)
 	t.Run("InputAchievements", testInputAchievementsHooks)
 	t.Run("MCategories", testMCategoriesHooks)
+	t.Run("OutputAchievementActions", testOutputAchievementActionsHooks)
 	t.Run("OutputAchievementTags", testOutputAchievementTagsHooks)
 	t.Run("OutputAchievements", testOutputAchievementsHooks)
+	t.Run("ShareTokens", testShareTokensHooks)
 	t.Run("TodoDetails", testTodoDetailsHooks)
 	t.Run("Todos", testTodosHooks)
 	t.Run("Users", testUsersHooks)
 }
 
 func TestInsert(t *testing.T) {
+	t.Run("InputAchievementActions", testInputAchievementActionsInsert)
+	t.Run("InputAchievementActions", testInputAchievementActionsInsertWhitelist)
 	t.Run("InputAchievementTags", testInputAchievementTagsInsert)
 	t.Run("InputAchievementTags", testInputAchievementTagsInsertWhitelist)
 	t.Run("InputAchievements", testInputAchievementsInsert)
 	t.Run("InputAchievements", testInputAchievementsInsertWhitelist)
 	t.Run("MCategories", testMCategoriesInsert)
 	t.Run("MCategories", testMCategoriesInsertWhitelist)
+	t.Run("OutputAchievementActions", testOutputAchievementActionsInsert)
+	t.Run("OutputAchievementActions", testOutputAchievementActionsInsertWhitelist)
 	t.Run("OutputAchievementTags", testOutputAchievementTagsInsert)
 	t.Run("OutputAchievementTags", testOutputAchievementTagsInsertWhitelist)
 	t.Run("OutputAchievements", testOutputAchievementsInsert)
 	t.Run("OutputAchievements", testOutputAchievementsInsertWhitelist)
+	t.Run("ShareTokens", testShareTokensInsert)
+	t.Run("ShareTokens", testShareTokensInsertWhitelist)
 	t.Run("TodoDetails", testTodoDetailsInsert)
 	t.Run("TodoDetails", testTodoDetailsInsertWhitelist)
 	t.Run("Todos", testTodosInsert)
@@ -154,12 +193,17 @@ func TestInsert(t *testing.T) {
 // TestToOne tests cannot be run in parallel
 // or deadlocks can occur.
 func TestToOne(t *testing.T) {
+	t.Run("InputAchievementActionToInputAchievementUsingInputAchievement", testInputAchievementActionToOneInputAchievementUsingInputAchievement)
+	t.Run("InputAchievementActionToUserUsingUser", testInputAchievementActionToOneUserUsingUser)
 	t.Run("InputAchievementTagToInputAchievementUsingInputAchievement", testInputAchievementTagToOneInputAchievementUsingInputAchievement)
 	t.Run("InputAchievementTagToMCategoryUsingCategory", testInputAchievementTagToOneMCategoryUsingCategory)
 	t.Run("InputAchievementToUserUsingUser", testInputAchievementToOneUserUsingUser)
+	t.Run("OutputAchievementActionToOutputAchievementUsingOutputAchievement", testOutputAchievementActionToOneOutputAchievementUsingOutputAchievement)
+	t.Run("OutputAchievementActionToUserUsingUser", testOutputAchievementActionToOneUserUsingUser)
 	t.Run("OutputAchievementTagToOutputAchievementUsingOutputAchievement", testOutputAchievementTagToOneOutputAchievementUsingOutputAchievement)
 	t.Run("OutputAchievementTagToMCategoryUsingCategory", testOutputAchievementTagToOneMCategoryUsingCategory)
 	t.Run("OutputAchievementToUserUsingUser", testOutputAchievementToOneUserUsingUser)
+	t.Run("ShareTokenToUserUsingUser", testShareTokenToOneUserUsingUser)
 	t.Run("TodoDetailToTodoUsingTodo", testTodoDetailToOneTodoUsingTodo)
 	t.Run("TodoToUserUsingUser", testTodoToOneUserUsingUser)
 }
@@ -171,25 +215,35 @@ func TestOneToOne(t *testing.T) {}
 // TestToMany tests cannot be run in parallel
 // or deadlocks can occur.
 func TestToMany(t *testing.T) {
+	t.Run("InputAchievementToInputAchievementActions", testInputAchievementToManyInputAchievementActions)
 	t.Run("InputAchievementToInputAchievementTags", testInputAchievementToManyInputAchievementTags)
 	t.Run("MCategoryToCategoryInputAchievementTags", testMCategoryToManyCategoryInputAchievementTags)
 	t.Run("MCategoryToCategoryOutputAchievementTags", testMCategoryToManyCategoryOutputAchievementTags)
+	t.Run("OutputAchievementToOutputAchievementActions", testOutputAchievementToManyOutputAchievementActions)
 	t.Run("OutputAchievementToOutputAchievementTags", testOutputAchievementToManyOutputAchievementTags)
 	t.Run("TodoToTodoDetails", testTodoToManyTodoDetails)
+	t.Run("UserToInputAchievementActions", testUserToManyInputAchievementActions)
 	t.Run("UserToInputAchievements", testUserToManyInputAchievements)
+	t.Run("UserToOutputAchievementActions", testUserToManyOutputAchievementActions)
 	t.Run("UserToOutputAchievements", testUserToManyOutputAchievements)
+	t.Run("UserToShareTokens", testUserToManyShareTokens)
 	t.Run("UserToTodos", testUserToManyTodos)
 }
 
 // TestToOneSet tests cannot be run in parallel
 // or deadlocks can occur.
 func TestToOneSet(t *testing.T) {
+	t.Run("InputAchievementActionToInputAchievementUsingInputAchievementActions", testInputAchievementActionToOneSetOpInputAchievementUsingInputAchievement)
+	t.Run("InputAchievementActionToUserUsingInputAchievementActions", testInputAchievementActionToOneSetOpUserUsingUser)
 	t.Run("InputAchievementTagToInputAchievementUsingInputAchievementTags", testInputAchievementTagToOneSetOpInputAchievementUsingInputAchievement)
 	t.Run("InputAchievementTagToMCategoryUsingCategoryInputAchievementTags", testInputAchievementTagToOneSetOpMCategoryUsingCategory)
 	t.Run("InputAchievementToUserUsingInputAchievements", testInputAchievementToOneSetOpUserUsingUser)
+	t.Run("OutputAchievementActionToOutputAchievementUsingOutputAchievementActions", testOutputAchievementActionToOneSetOpOutputAchievementUsingOutputAchievement)
+	t.Run("OutputAchievementActionToUserUsingOutputAchievementActions", testOutputAchievementActionToOneSetOpUserUsingUser)
 	t.Run("OutputAchievementTagToOutputAchievementUsingOutputAchievementTags", testOutputAchievementTagToOneSetOpOutputAchievementUsingOutputAchievement)
 	t.Run("OutputAchievementTagToMCategoryUsingCategoryOutputAchievementTags", testOutputAchievementTagToOneSetOpMCategoryUsingCategory)
 	t.Run("OutputAchievementToUserUsingOutputAchievements", testOutputAchievementToOneSetOpUserUsingUser)
+	t.Run("ShareTokenToUserUsingShareTokens", testShareTokenToOneSetOpUserUsingUser)
 	t.Run("TodoDetailToTodoUsingTodoDetails", testTodoDetailToOneSetOpTodoUsingTodo)
 	t.Run("TodoToUserUsingTodos", testTodoToOneSetOpUserUsingUser)
 }
@@ -211,13 +265,18 @@ func TestOneToOneRemove(t *testing.T) {}
 // TestToManyAdd tests cannot be run in parallel
 // or deadlocks can occur.
 func TestToManyAdd(t *testing.T) {
+	t.Run("InputAchievementToInputAchievementActions", testInputAchievementToManyAddOpInputAchievementActions)
 	t.Run("InputAchievementToInputAchievementTags", testInputAchievementToManyAddOpInputAchievementTags)
 	t.Run("MCategoryToCategoryInputAchievementTags", testMCategoryToManyAddOpCategoryInputAchievementTags)
 	t.Run("MCategoryToCategoryOutputAchievementTags", testMCategoryToManyAddOpCategoryOutputAchievementTags)
+	t.Run("OutputAchievementToOutputAchievementActions", testOutputAchievementToManyAddOpOutputAchievementActions)
 	t.Run("OutputAchievementToOutputAchievementTags", testOutputAchievementToManyAddOpOutputAchievementTags)
 	t.Run("TodoToTodoDetails", testTodoToManyAddOpTodoDetails)
+	t.Run("UserToInputAchievementActions", testUserToManyAddOpInputAchievementActions)
 	t.Run("UserToInputAchievements", testUserToManyAddOpInputAchievements)
+	t.Run("UserToOutputAchievementActions", testUserToManyAddOpOutputAchievementActions)
 	t.Run("UserToOutputAchievements", testUserToManyAddOpOutputAchievements)
+	t.Run("UserToShareTokens", testUserToManyAddOpShareTokens)
 	t.Run("UserToTodos", testUserToManyAddOpTodos)
 }
 
@@ -234,55 +293,70 @@ func TestToManyRemove(t *testing.T) {
 }
 
 func TestReload(t *testing.T) {
+	t.Run("InputAchievementActions", testInputAchievementActionsReload)
 	t.Run("InputAchievementTags", testInputAchievementTagsReload)
 	t.Run("InputAchievements", testInputAchievementsReload)
 	t.Run("MCategories", testMCategoriesReload)
+	t.Run("OutputAchievementActions", testOutputAchievementActionsReload)
 	t.Run("OutputAchievementTags", testOutputAchievementTagsReload)
 	t.Run("OutputAchievements", testOutputAchievementsReload)
+	t.Run("ShareTokens", testShareTokensReload)
 	t.Run("TodoDetails", testTodoDetailsReload)
 	t.Run("Todos", testTodosReload)
 	t.Run("Users", testUsersReload)
 }
 
 func TestReloadAll(t *testing.T) {
+	t.Run("InputAchievementActions", testInputAchievementActionsReloadAll)
 	t.Run("InputAchievementTags", testInputAchievementTagsReloadAll)
 	t.Run("InputAchievements", testInputAchievementsReloadAll)
 	t.Run("MCategories", testMCategoriesReloadAll)
+	t.Run("OutputAchievementActions", testOutputAchievementActionsReloadAll)
 	t.Run("OutputAchievementTags", testOutputAchievementTagsReloadAll)
 	t.Run("OutputAchievements", testOutputAchievementsReloadAll)
+	t.Run("ShareTokens", testShareTokensReloadAll)
 	t.Run("TodoDetails", testTodoDetailsReloadAll)
 	t.Run("Todos", testTodosReloadAll)
 	t.Run("Users", testUsersReloadAll)
 }
 
 func TestSelect(t *testing.T) {
+	t.Run("InputAchievementActions", testInputAchievementActionsSelect)
 	t.Run("InputAchievementTags", testInputAchievementTagsSelect)
 	t.Run("InputAchievements", testInputAchievementsSelect)
 	t.Run("MCategories", testMCategoriesSelect)
+	t.Run("OutputAchievementActions", testOutputAchievementActionsSelect)
 	t.Run("OutputAchievementTags", testOutputAchievementTagsSelect)
 	t.Run("OutputAchievements", testOutputAchievementsSelect)
+	t.Run("ShareTokens", testShareTokensSelect)
 	t.Run("TodoDetails", testTodoDetailsSelect)
 	t.Run("Todos", testTodosSelect)
 	t.Run("Users", testUsersSelect)
 }
 
 func TestUpdate(t *testing.T) {
+	t.Run("InputAchievementActions", testInputAchievementActionsUpdate)
 	t.Run("InputAchievementTags", testInputAchievementTagsUpdate)
 	t.Run("InputAchievements", testInputAchievementsUpdate)
 	t.Run("MCategories", testMCategoriesUpdate)
+	t.Run("OutputAchievementActions", testOutputAchievementActionsUpdate)
 	t.Run("OutputAchievementTags", testOutputAchievementTagsUpdate)
 	t.Run("OutputAchievements", testOutputAchievementsUpdate)
+	t.Run("ShareTokens", testShareTokensUpdate)
 	t.Run("TodoDetails", testTodoDetailsUpdate)
 	t.Run("Todos", testTodosUpdate)
 	t.Run("Users", testUsersUpdate)
 }
 
 func TestSliceUpdateAll(t *testing.T) {
+	t.Run("InputAchievementActions", testInputAchievementActionsSliceUpdateAll)
 	t.Run("InputAchievementTags", testInputAchievementTagsSliceUpdateAll)
 	t.Run("InputAchievements", testInputAchievementsSliceUpdateAll)
 	t.Run("MCategories", testMCategoriesSliceUpdateAll)
+	t.Run("OutputAchievementActions", testOutputAchievementActionsSliceUpdateAll)
 	t.Run("OutputAchievementTags", testOutputAchievementTagsSliceUpdateAll)
 	t.Run("OutputAchievements", testOutputAchievementsSliceUpdateAll)
+	t.Run("ShareTokens", testShareTokensSliceUpdateAll)
 	t.Run("TodoDetails", testTodoDetailsSliceUpdateAll)
 	t.Run("Todos", testTodosSliceUpdateAll)
 	t.Run("Users", testUsersSliceUpdateAll)

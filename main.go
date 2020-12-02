@@ -39,6 +39,10 @@ func main() {
 		{
 			v1.GET("/input", controller.FindInputTimeline)
 			v1.GET("/output", controller.FindOutputTimeline)
+			v1.GET("/input/selected_actions", controller.FindInputSelectedActions)
+			v1.GET("/output/selected_actions", controller.FindOutputSelectedActions)
+			v1.POST("/input/update_action", controller.UpdateInputAction)
+			v1.POST("/output/update_action", controller.UpdateOutputAction)
 		}
 	}
 

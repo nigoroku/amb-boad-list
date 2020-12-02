@@ -4,21 +4,27 @@
 package generated
 
 var TableNames = struct {
-	InputAchievementTags  string
-	InputAchievements     string
-	MCategories           string
-	OutputAchievementTags string
-	OutputAchievements    string
-	TodoDetails           string
-	Todos                 string
-	Users                 string
+	InputAchievementActions  string
+	InputAchievementTags     string
+	InputAchievements        string
+	MCategories              string
+	OutputAchievementActions string
+	OutputAchievementTags    string
+	OutputAchievements       string
+	ShareTokens              string
+	TodoDetails              string
+	Todos                    string
+	Users                    string
 }{
-	InputAchievementTags:  "input_achievement_tags",
-	InputAchievements:     "input_achievements",
-	MCategories:           "m_categories",
-	OutputAchievementTags: "output_achievement_tags",
-	OutputAchievements:    "output_achievements",
-	TodoDetails:           "todo_details",
-	Todos:                 "todos",
-	Users:                 "users",
+	InputAchievementActions:  "input_achievement_actions",
+	InputAchievementTags:     "input_achievement_tags",
+	InputAchievements:        "input_achievements",
+	MCategories:              "m_categories",
+	OutputAchievementActions: "output_achievement_actions",
+	OutputAchievementTags:    "output_achievement_tags",
+	OutputAchievements:       "output_achievements",
+	ShareTokens:              "share_tokens",
+	TodoDetails:              "todo_details",
+	Todos:                    "todos",
+	Users:                    "users",
 }

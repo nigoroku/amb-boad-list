@@ -20,7 +20,6 @@ import (
 	"github.com/volatiletech/sqlboiler/queries/qm"
 	"github.com/volatiletech/sqlboiler/queries/qmhelper"
 	"github.com/volatiletech/sqlboiler/strmangle"
-	// "local.packages/models/generated"
 )
 
 // User is an object representing the database table.
@@ -35,12 +34,12 @@ type User struct {
 	CreatedAt    time.Time   `boil:"created_at" json:"created_at" toml:"created_at" yaml:"created_at"`
 	ModifiedBy   null.Int    `boil:"modified_by" json:"modified_by,omitempty" toml:"modified_by" yaml:"modified_by,omitempty"`
 	ModifiedAt   null.Time   `boil:"modified_at" json:"modified_at,omitempty" toml:"modified_at" yaml:"modified_at,omitempty"`
-	AccountImg   []byte      `boil:"account_img" json:"account_img,omitempty" toml:"account_img" yaml:"account_img,omitempty"`
+	AccountImg   null.Bytes  `boil:"account_img" json:"account_img,omitempty" toml:"account_img" yaml:"account_img,omitempty"`
 	Introduction null.String `boil:"introduction" json:"introduction,omitempty" toml:"introduction" yaml:"introduction,omitempty"`
 	ContentType  null.String `boil:"content_type" json:"content_type,omitempty" toml:"content_type" yaml:"content_type,omitempty"`
 
-	R *userR `boil:"bind" json:"-" toml:"-" yaml:"-"`
-	L userL  `boil:"bind" json:"-" toml:"-" yaml:"-"`
+	R *userR `boil:"-" json:"-" toml:"-" yaml:"-"`
+	L userL  `boil:"-" json:"-" toml:"-" yaml:"-"`
 }
 
 var UserColumns = struct {
@@ -56,6 +55,7 @@ var UserColumns = struct {
 	ModifiedAt   string
 	AccountImg   string
 	Introduction string
+	ContentType  string
 }{
 	UserID:       "user_id",
 	AccountName:  "account_name",
@@ -69,6 +69,7 @@ var UserColumns = struct {
 	ModifiedAt:   "modified_at",
 	AccountImg:   "account_img",
 	Introduction: "introduction",
+	ContentType:  "content_type",
 }
 
 // Generated where
@@ -125,6 +126,7 @@ var UserWhere = struct {
 	ModifiedAt   whereHelpernull_Time
 	AccountImg   whereHelpernull_Bytes
 	Introduction whereHelpernull_String
+	ContentType  whereHelpernull_String
 }{
 	UserID:       whereHelperint{field: "`users`.`user_id`"},
 	AccountName:  whereHelperstring{field: "`users`.`account_name`"},
@@ -138,24 +140,34 @@ var UserWhere = struct {
 	ModifiedAt:   whereHelpernull_Time{field: "`users`.`modified_at`"},
 	AccountImg:   whereHelpernull_Bytes{field: "`users`.`account_img`"},
 	Introduction: whereHelpernull_String{field: "`users`.`introduction`"},
+	ContentType:  whereHelpernull_String{field: "`users`.`content_type`"},
 }
 
 // UserRels is where relationship names are stored.
 var UserRels = struct {
-	InputAchievements  string
-	OutputAchievements string
-	Todos              string
+	InputAchievementActions  string
+	InputAchievements        string
+	OutputAchievementActions string
+	OutputAchievements       string
+	ShareTokens              string
+	Todos                    string
 }{
-	InputAchievements:  "InputAchievements",
-	OutputAchievements: "OutputAchievements",
-	Todos:              "Todos",
+	InputAchievementActions:  "InputAchievementActions",
+	InputAchievements:        "InputAchievements",
+	OutputAchievementActions: "OutputAchievementActions",
+	OutputAchievements:       "OutputAchievements",
+	ShareTokens:              "ShareTokens",
+	Todos:                    "Todos",
 }
 
 // userR is where relationships are stored.
 type userR struct {
-	InputAchievements  InputAchievementSlice
-	OutputAchievements OutputAchievementSlice
-	Todos              TodoSlice
+	InputAchievementActions  InputAchievementActionSlice
+	InputAchievements        InputAchievementSlice
+	OutputAchievementActions OutputAchievementActionSlice
+	OutputAchievements       OutputAchievementSlice
+	ShareTokens              ShareTokenSlice
+	Todos                    TodoSlice
 }
 
 // NewStruct creates a new relationship struct
@@ -167,8 +179,8 @@ func (*userR) NewStruct() *userR {
 type userL struct{}
 
 var (
-	userAllColumns            = []string{"user_id", "account_name", "email", "password", "role", "last_login_at", "created_by", "created_at", "modified_by", "modified_at", "account_img", "introduction"}
-	userColumnsWithoutDefault = []string{"account_name", "email", "password", "role", "last_login_at", "created_by", "created_at", "modified_by", "modified_at", "account_img", "introduction"}
+	userAllColumns            = []string{"user_id", "account_name", "email", "password", "role", "last_login_at", "created_by", "created_at", "modified_by", "modified_at", "account_img", "introduction", "content_type"}
+	userColumnsWithoutDefault = []string{"account_name", "email", "password", "role", "last_login_at", "created_by", "created_at", "modified_by", "modified_at", "account_img", "introduction", "content_type"}
 	userColumnsWithDefault    = []string{"user_id"}
 	userPrimaryKeyColumns     = []string{"user_id"}
 )
@@ -448,6 +460,27 @@ func (q userQuery) Exists(ctx context.Context, exec boil.ContextExecutor) (bool,
 	return count > 0, nil
 }
 
+// InputAchievementActions retrieves all the input_achievement_action's InputAchievementActions with an executor.
+func (o *User) InputAchievementActions(mods ...qm.QueryMod) inputAchievementActionQuery {
+	var queryMods []qm.QueryMod
+	if len(mods) != 0 {
+		queryMods = append(queryMods, mods...)
+	}
+
+	queryMods = append(queryMods,
+		qm.Where("`input_achievement_actions`.`user_id`=?", o.UserID),
+	)
+
+	query := InputAchievementActions(queryMods...)
+	queries.SetFrom(query.Query, "`input_achievement_actions`")
+
+	if len(queries.GetSelect(query.Query)) == 0 {
+		queries.SetSelect(query.Query, []string{"`input_achievement_actions`.*"})
+	}
+
+	return query
+}
+
 // InputAchievements retrieves all the input_achievement's InputAchievements with an executor.
 func (o *User) InputAchievements(mods ...qm.QueryMod) inputAchievementQuery {
 	var queryMods []qm.QueryMod
@@ -464,6 +497,27 @@ func (o *User) InputAchievements(mods ...qm.QueryMod) inputAchievementQuery {
 
 	if len(queries.GetSelect(query.Query)) == 0 {
 		queries.SetSelect(query.Query, []string{"`input_achievements`.*"})
+	}
+
+	return query
+}
+
+// OutputAchievementActions retrieves all the output_achievement_action's OutputAchievementActions with an executor.
+func (o *User) OutputAchievementActions(mods ...qm.QueryMod) outputAchievementActionQuery {
+	var queryMods []qm.QueryMod
+	if len(mods) != 0 {
+		queryMods = append(queryMods, mods...)
+	}
+
+	queryMods = append(queryMods,
+		qm.Where("`output_achievement_actions`.`user_id`=?", o.UserID),
+	)
+
+	query := OutputAchievementActions(queryMods...)
+	queries.SetFrom(query.Query, "`output_achievement_actions`")
+
+	if len(queries.GetSelect(query.Query)) == 0 {
+		queries.SetSelect(query.Query, []string{"`output_achievement_actions`.*"})
 	}
 
 	return query
@@ -490,6 +544,27 @@ func (o *User) OutputAchievements(mods ...qm.QueryMod) outputAchievementQuery {
 	return query
 }
 
+// ShareTokens retrieves all the share_token's ShareTokens with an executor.
+func (o *User) ShareTokens(mods ...qm.QueryMod) shareTokenQuery {
+	var queryMods []qm.QueryMod
+	if len(mods) != 0 {
+		queryMods = append(queryMods, mods...)
+	}
+
+	queryMods = append(queryMods,
+		qm.Where("`share_tokens`.`user_id`=?", o.UserID),
+	)
+
+	query := ShareTokens(queryMods...)
+	queries.SetFrom(query.Query, "`share_tokens`")
+
+	if len(queries.GetSelect(query.Query)) == 0 {
+		queries.SetSelect(query.Query, []string{"`share_tokens`.*"})
+	}
+
+	return query
+}
+
 // Todos retrieves all the todo's Todos with an executor.
 func (o *User) Todos(mods ...qm.QueryMod) todoQuery {
 	var queryMods []qm.QueryMod
@@ -509,6 +584,101 @@ func (o *User) Todos(mods ...qm.QueryMod) todoQuery {
 	}
 
 	return query
+}
+
+// LoadInputAchievementActions allows an eager lookup of values, cached into the
+// loaded structs of the objects. This is for a 1-M or N-M relationship.
+func (userL) LoadInputAchievementActions(ctx context.Context, e boil.ContextExecutor, singular bool, maybeUser interface{}, mods queries.Applicator) error {
+	var slice []*User
+	var object *User
+
+	if singular {
+		object = maybeUser.(*User)
+	} else {
+		slice = *maybeUser.(*[]*User)
+	}
+
+	args := make([]interface{}, 0, 1)
+	if singular {
+		if object.R == nil {
+			object.R = &userR{}
+		}
+		args = append(args, object.UserID)
+	} else {
+	Outer:
+		for _, obj := range slice {
+			if obj.R == nil {
+				obj.R = &userR{}
+			}
+
+			for _, a := range args {
+				if a == obj.UserID {
+					continue Outer
+				}
+			}
+
+			args = append(args, obj.UserID)
+		}
+	}
+
+	if len(args) == 0 {
+		return nil
+	}
+
+	query := NewQuery(qm.From(`input_achievement_actions`), qm.WhereIn(`input_achievement_actions.user_id in ?`, args...))
+	if mods != nil {
+		mods.Apply(query)
+	}
+
+	results, err := query.QueryContext(ctx, e)
+	if err != nil {
+		return errors.Wrap(err, "failed to eager load input_achievement_actions")
+	}
+
+	var resultSlice []*InputAchievementAction
+	if err = queries.Bind(results, &resultSlice); err != nil {
+		return errors.Wrap(err, "failed to bind eager loaded slice input_achievement_actions")
+	}
+
+	if err = results.Close(); err != nil {
+		return errors.Wrap(err, "failed to close results in eager load on input_achievement_actions")
+	}
+	if err = results.Err(); err != nil {
+		return errors.Wrap(err, "error occurred during iteration of eager loaded relations for input_achievement_actions")
+	}
+
+	if len(inputAchievementActionAfterSelectHooks) != 0 {
+		for _, obj := range resultSlice {
+			if err := obj.doAfterSelectHooks(ctx, e); err != nil {
+				return err
+			}
+		}
+	}
+	if singular {
+		object.R.InputAchievementActions = resultSlice
+		for _, foreign := range resultSlice {
+			if foreign.R == nil {
+				foreign.R = &inputAchievementActionR{}
+			}
+			foreign.R.User = object
+		}
+		return nil
+	}
+
+	for _, foreign := range resultSlice {
+		for _, local := range slice {
+			if local.UserID == foreign.UserID {
+				local.R.InputAchievementActions = append(local.R.InputAchievementActions, foreign)
+				if foreign.R == nil {
+					foreign.R = &inputAchievementActionR{}
+				}
+				foreign.R.User = local
+				break
+			}
+		}
+	}
+
+	return nil
 }
 
 // LoadInputAchievements allows an eager lookup of values, cached into the
@@ -596,6 +766,101 @@ func (userL) LoadInputAchievements(ctx context.Context, e boil.ContextExecutor, 
 				local.R.InputAchievements = append(local.R.InputAchievements, foreign)
 				if foreign.R == nil {
 					foreign.R = &inputAchievementR{}
+				}
+				foreign.R.User = local
+				break
+			}
+		}
+	}
+
+	return nil
+}
+
+// LoadOutputAchievementActions allows an eager lookup of values, cached into the
+// loaded structs of the objects. This is for a 1-M or N-M relationship.
+func (userL) LoadOutputAchievementActions(ctx context.Context, e boil.ContextExecutor, singular bool, maybeUser interface{}, mods queries.Applicator) error {
+	var slice []*User
+	var object *User
+
+	if singular {
+		object = maybeUser.(*User)
+	} else {
+		slice = *maybeUser.(*[]*User)
+	}
+
+	args := make([]interface{}, 0, 1)
+	if singular {
+		if object.R == nil {
+			object.R = &userR{}
+		}
+		args = append(args, object.UserID)
+	} else {
+	Outer:
+		for _, obj := range slice {
+			if obj.R == nil {
+				obj.R = &userR{}
+			}
+
+			for _, a := range args {
+				if a == obj.UserID {
+					continue Outer
+				}
+			}
+
+			args = append(args, obj.UserID)
+		}
+	}
+
+	if len(args) == 0 {
+		return nil
+	}
+
+	query := NewQuery(qm.From(`output_achievement_actions`), qm.WhereIn(`output_achievement_actions.user_id in ?`, args...))
+	if mods != nil {
+		mods.Apply(query)
+	}
+
+	results, err := query.QueryContext(ctx, e)
+	if err != nil {
+		return errors.Wrap(err, "failed to eager load output_achievement_actions")
+	}
+
+	var resultSlice []*OutputAchievementAction
+	if err = queries.Bind(results, &resultSlice); err != nil {
+		return errors.Wrap(err, "failed to bind eager loaded slice output_achievement_actions")
+	}
+
+	if err = results.Close(); err != nil {
+		return errors.Wrap(err, "failed to close results in eager load on output_achievement_actions")
+	}
+	if err = results.Err(); err != nil {
+		return errors.Wrap(err, "error occurred during iteration of eager loaded relations for output_achievement_actions")
+	}
+
+	if len(outputAchievementActionAfterSelectHooks) != 0 {
+		for _, obj := range resultSlice {
+			if err := obj.doAfterSelectHooks(ctx, e); err != nil {
+				return err
+			}
+		}
+	}
+	if singular {
+		object.R.OutputAchievementActions = resultSlice
+		for _, foreign := range resultSlice {
+			if foreign.R == nil {
+				foreign.R = &outputAchievementActionR{}
+			}
+			foreign.R.User = object
+		}
+		return nil
+	}
+
+	for _, foreign := range resultSlice {
+		for _, local := range slice {
+			if local.UserID == foreign.UserID {
+				local.R.OutputAchievementActions = append(local.R.OutputAchievementActions, foreign)
+				if foreign.R == nil {
+					foreign.R = &outputAchievementActionR{}
 				}
 				foreign.R.User = local
 				break
@@ -701,6 +966,101 @@ func (userL) LoadOutputAchievements(ctx context.Context, e boil.ContextExecutor,
 	return nil
 }
 
+// LoadShareTokens allows an eager lookup of values, cached into the
+// loaded structs of the objects. This is for a 1-M or N-M relationship.
+func (userL) LoadShareTokens(ctx context.Context, e boil.ContextExecutor, singular bool, maybeUser interface{}, mods queries.Applicator) error {
+	var slice []*User
+	var object *User
+
+	if singular {
+		object = maybeUser.(*User)
+	} else {
+		slice = *maybeUser.(*[]*User)
+	}
+
+	args := make([]interface{}, 0, 1)
+	if singular {
+		if object.R == nil {
+			object.R = &userR{}
+		}
+		args = append(args, object.UserID)
+	} else {
+	Outer:
+		for _, obj := range slice {
+			if obj.R == nil {
+				obj.R = &userR{}
+			}
+
+			for _, a := range args {
+				if a == obj.UserID {
+					continue Outer
+				}
+			}
+
+			args = append(args, obj.UserID)
+		}
+	}
+
+	if len(args) == 0 {
+		return nil
+	}
+
+	query := NewQuery(qm.From(`share_tokens`), qm.WhereIn(`share_tokens.user_id in ?`, args...))
+	if mods != nil {
+		mods.Apply(query)
+	}
+
+	results, err := query.QueryContext(ctx, e)
+	if err != nil {
+		return errors.Wrap(err, "failed to eager load share_tokens")
+	}
+
+	var resultSlice []*ShareToken
+	if err = queries.Bind(results, &resultSlice); err != nil {
+		return errors.Wrap(err, "failed to bind eager loaded slice share_tokens")
+	}
+
+	if err = results.Close(); err != nil {
+		return errors.Wrap(err, "failed to close results in eager load on share_tokens")
+	}
+	if err = results.Err(); err != nil {
+		return errors.Wrap(err, "error occurred during iteration of eager loaded relations for share_tokens")
+	}
+
+	if len(shareTokenAfterSelectHooks) != 0 {
+		for _, obj := range resultSlice {
+			if err := obj.doAfterSelectHooks(ctx, e); err != nil {
+				return err
+			}
+		}
+	}
+	if singular {
+		object.R.ShareTokens = resultSlice
+		for _, foreign := range resultSlice {
+			if foreign.R == nil {
+				foreign.R = &shareTokenR{}
+			}
+			foreign.R.User = object
+		}
+		return nil
+	}
+
+	for _, foreign := range resultSlice {
+		for _, local := range slice {
+			if local.UserID == foreign.UserID {
+				local.R.ShareTokens = append(local.R.ShareTokens, foreign)
+				if foreign.R == nil {
+					foreign.R = &shareTokenR{}
+				}
+				foreign.R.User = local
+				break
+			}
+		}
+	}
+
+	return nil
+}
+
 // LoadTodos allows an eager lookup of values, cached into the
 // loaded structs of the objects. This is for a 1-M or N-M relationship.
 func (userL) LoadTodos(ctx context.Context, e boil.ContextExecutor, singular bool, maybeUser interface{}, mods queries.Applicator) error {
@@ -796,6 +1156,59 @@ func (userL) LoadTodos(ctx context.Context, e boil.ContextExecutor, singular boo
 	return nil
 }
 
+// AddInputAchievementActions adds the given related objects to the existing relationships
+// of the user, optionally inserting them as new records.
+// Appends related to o.R.InputAchievementActions.
+// Sets related.R.User appropriately.
+func (o *User) AddInputAchievementActions(ctx context.Context, exec boil.ContextExecutor, insert bool, related ...*InputAchievementAction) error {
+	var err error
+	for _, rel := range related {
+		if insert {
+			rel.UserID = o.UserID
+			if err = rel.Insert(ctx, exec, boil.Infer()); err != nil {
+				return errors.Wrap(err, "failed to insert into foreign table")
+			}
+		} else {
+			updateQuery := fmt.Sprintf(
+				"UPDATE `input_achievement_actions` SET %s WHERE %s",
+				strmangle.SetParamNames("`", "`", 0, []string{"user_id"}),
+				strmangle.WhereClause("`", "`", 0, inputAchievementActionPrimaryKeyColumns),
+			)
+			values := []interface{}{o.UserID, rel.InputAchievementActionID}
+
+			if boil.IsDebug(ctx) {
+				writer := boil.DebugWriterFrom(ctx)
+				fmt.Fprintln(writer, updateQuery)
+				fmt.Fprintln(writer, values)
+			}
+			if _, err = exec.ExecContext(ctx, updateQuery, values...); err != nil {
+				return errors.Wrap(err, "failed to update foreign table")
+			}
+
+			rel.UserID = o.UserID
+		}
+	}
+
+	if o.R == nil {
+		o.R = &userR{
+			InputAchievementActions: related,
+		}
+	} else {
+		o.R.InputAchievementActions = append(o.R.InputAchievementActions, related...)
+	}
+
+	for _, rel := range related {
+		if rel.R == nil {
+			rel.R = &inputAchievementActionR{
+				User: o,
+			}
+		} else {
+			rel.R.User = o
+		}
+	}
+	return nil
+}
+
 // AddInputAchievements adds the given related objects to the existing relationships
 // of the user, optionally inserting them as new records.
 // Appends related to o.R.InputAchievements.
@@ -849,6 +1262,59 @@ func (o *User) AddInputAchievements(ctx context.Context, exec boil.ContextExecut
 	return nil
 }
 
+// AddOutputAchievementActions adds the given related objects to the existing relationships
+// of the user, optionally inserting them as new records.
+// Appends related to o.R.OutputAchievementActions.
+// Sets related.R.User appropriately.
+func (o *User) AddOutputAchievementActions(ctx context.Context, exec boil.ContextExecutor, insert bool, related ...*OutputAchievementAction) error {
+	var err error
+	for _, rel := range related {
+		if insert {
+			rel.UserID = o.UserID
+			if err = rel.Insert(ctx, exec, boil.Infer()); err != nil {
+				return errors.Wrap(err, "failed to insert into foreign table")
+			}
+		} else {
+			updateQuery := fmt.Sprintf(
+				"UPDATE `output_achievement_actions` SET %s WHERE %s",
+				strmangle.SetParamNames("`", "`", 0, []string{"user_id"}),
+				strmangle.WhereClause("`", "`", 0, outputAchievementActionPrimaryKeyColumns),
+			)
+			values := []interface{}{o.UserID, rel.OutputAchievementActionID}
+
+			if boil.IsDebug(ctx) {
+				writer := boil.DebugWriterFrom(ctx)
+				fmt.Fprintln(writer, updateQuery)
+				fmt.Fprintln(writer, values)
+			}
+			if _, err = exec.ExecContext(ctx, updateQuery, values...); err != nil {
+				return errors.Wrap(err, "failed to update foreign table")
+			}
+
+			rel.UserID = o.UserID
+		}
+	}
+
+	if o.R == nil {
+		o.R = &userR{
+			OutputAchievementActions: related,
+		}
+	} else {
+		o.R.OutputAchievementActions = append(o.R.OutputAchievementActions, related...)
+	}
+
+	for _, rel := range related {
+		if rel.R == nil {
+			rel.R = &outputAchievementActionR{
+				User: o,
+			}
+		} else {
+			rel.R.User = o
+		}
+	}
+	return nil
+}
+
 // AddOutputAchievements adds the given related objects to the existing relationships
 // of the user, optionally inserting them as new records.
 // Appends related to o.R.OutputAchievements.
@@ -893,6 +1359,59 @@ func (o *User) AddOutputAchievements(ctx context.Context, exec boil.ContextExecu
 	for _, rel := range related {
 		if rel.R == nil {
 			rel.R = &outputAchievementR{
+				User: o,
+			}
+		} else {
+			rel.R.User = o
+		}
+	}
+	return nil
+}
+
+// AddShareTokens adds the given related objects to the existing relationships
+// of the user, optionally inserting them as new records.
+// Appends related to o.R.ShareTokens.
+// Sets related.R.User appropriately.
+func (o *User) AddShareTokens(ctx context.Context, exec boil.ContextExecutor, insert bool, related ...*ShareToken) error {
+	var err error
+	for _, rel := range related {
+		if insert {
+			rel.UserID = o.UserID
+			if err = rel.Insert(ctx, exec, boil.Infer()); err != nil {
+				return errors.Wrap(err, "failed to insert into foreign table")
+			}
+		} else {
+			updateQuery := fmt.Sprintf(
+				"UPDATE `share_tokens` SET %s WHERE %s",
+				strmangle.SetParamNames("`", "`", 0, []string{"user_id"}),
+				strmangle.WhereClause("`", "`", 0, shareTokenPrimaryKeyColumns),
+			)
+			values := []interface{}{o.UserID, rel.ShareTokenID}
+
+			if boil.IsDebug(ctx) {
+				writer := boil.DebugWriterFrom(ctx)
+				fmt.Fprintln(writer, updateQuery)
+				fmt.Fprintln(writer, values)
+			}
+			if _, err = exec.ExecContext(ctx, updateQuery, values...); err != nil {
+				return errors.Wrap(err, "failed to update foreign table")
+			}
+
+			rel.UserID = o.UserID
+		}
+	}
+
+	if o.R == nil {
+		o.R = &userR{
+			ShareTokens: related,
+		}
+	} else {
+		o.R.ShareTokens = append(o.R.ShareTokens, related...)
+	}
+
+	for _, rel := range related {
+		if rel.R == nil {
+			rel.R = &shareTokenR{
 				User: o,
 			}
 		} else {

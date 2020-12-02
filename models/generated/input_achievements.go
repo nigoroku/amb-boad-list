@@ -109,17 +109,20 @@ var InputAchievementWhere = struct {
 
 // InputAchievementRels is where relationship names are stored.
 var InputAchievementRels = struct {
-	User                 string
-	InputAchievementTags string
+	User                    string
+	InputAchievementActions string
+	InputAchievementTags    string
 }{
-	User:                 "User",
-	InputAchievementTags: "InputAchievementTags",
+	User:                    "User",
+	InputAchievementActions: "InputAchievementActions",
+	InputAchievementTags:    "InputAchievementTags",
 }
 
 // inputAchievementR is where relationships are stored.
 type inputAchievementR struct {
-	User                 *User
-	InputAchievementTags InputAchievementTagSlice
+	User                    *User
+	InputAchievementActions InputAchievementActionSlice
+	InputAchievementTags    InputAchievementTagSlice
 }
 
 // NewStruct creates a new relationship struct
@@ -426,6 +429,27 @@ func (o *InputAchievement) User(mods ...qm.QueryMod) userQuery {
 	return query
 }
 
+// InputAchievementActions retrieves all the input_achievement_action's InputAchievementActions with an executor.
+func (o *InputAchievement) InputAchievementActions(mods ...qm.QueryMod) inputAchievementActionQuery {
+	var queryMods []qm.QueryMod
+	if len(mods) != 0 {
+		queryMods = append(queryMods, mods...)
+	}
+
+	queryMods = append(queryMods,
+		qm.Where("`input_achievement_actions`.`input_achievement_id`=?", o.InputAchievementID),
+	)
+
+	query := InputAchievementActions(queryMods...)
+	queries.SetFrom(query.Query, "`input_achievement_actions`")
+
+	if len(queries.GetSelect(query.Query)) == 0 {
+		queries.SetSelect(query.Query, []string{"`input_achievement_actions`.*"})
+	}
+
+	return query
+}
+
 // InputAchievementTags retrieves all the input_achievement_tag's InputAchievementTags with an executor.
 func (o *InputAchievement) InputAchievementTags(mods ...qm.QueryMod) inputAchievementTagQuery {
 	var queryMods []qm.QueryMod
@@ -540,6 +564,101 @@ func (inputAchievementL) LoadUser(ctx context.Context, e boil.ContextExecutor, s
 					foreign.R = &userR{}
 				}
 				foreign.R.InputAchievements = append(foreign.R.InputAchievements, local)
+				break
+			}
+		}
+	}
+
+	return nil
+}
+
+// LoadInputAchievementActions allows an eager lookup of values, cached into the
+// loaded structs of the objects. This is for a 1-M or N-M relationship.
+func (inputAchievementL) LoadInputAchievementActions(ctx context.Context, e boil.ContextExecutor, singular bool, maybeInputAchievement interface{}, mods queries.Applicator) error {
+	var slice []*InputAchievement
+	var object *InputAchievement
+
+	if singular {
+		object = maybeInputAchievement.(*InputAchievement)
+	} else {
+		slice = *maybeInputAchievement.(*[]*InputAchievement)
+	}
+
+	args := make([]interface{}, 0, 1)
+	if singular {
+		if object.R == nil {
+			object.R = &inputAchievementR{}
+		}
+		args = append(args, object.InputAchievementID)
+	} else {
+	Outer:
+		for _, obj := range slice {
+			if obj.R == nil {
+				obj.R = &inputAchievementR{}
+			}
+
+			for _, a := range args {
+				if a == obj.InputAchievementID {
+					continue Outer
+				}
+			}
+
+			args = append(args, obj.InputAchievementID)
+		}
+	}
+
+	if len(args) == 0 {
+		return nil
+	}
+
+	query := NewQuery(qm.From(`input_achievement_actions`), qm.WhereIn(`input_achievement_actions.input_achievement_id in ?`, args...))
+	if mods != nil {
+		mods.Apply(query)
+	}
+
+	results, err := query.QueryContext(ctx, e)
+	if err != nil {
+		return errors.Wrap(err, "failed to eager load input_achievement_actions")
+	}
+
+	var resultSlice []*InputAchievementAction
+	if err = queries.Bind(results, &resultSlice); err != nil {
+		return errors.Wrap(err, "failed to bind eager loaded slice input_achievement_actions")
+	}
+
+	if err = results.Close(); err != nil {
+		return errors.Wrap(err, "failed to close results in eager load on input_achievement_actions")
+	}
+	if err = results.Err(); err != nil {
+		return errors.Wrap(err, "error occurred during iteration of eager loaded relations for input_achievement_actions")
+	}
+
+	if len(inputAchievementActionAfterSelectHooks) != 0 {
+		for _, obj := range resultSlice {
+			if err := obj.doAfterSelectHooks(ctx, e); err != nil {
+				return err
+			}
+		}
+	}
+	if singular {
+		object.R.InputAchievementActions = resultSlice
+		for _, foreign := range resultSlice {
+			if foreign.R == nil {
+				foreign.R = &inputAchievementActionR{}
+			}
+			foreign.R.InputAchievement = object
+		}
+		return nil
+	}
+
+	for _, foreign := range resultSlice {
+		for _, local := range slice {
+			if local.InputAchievementID == foreign.InputAchievementID {
+				local.R.InputAchievementActions = append(local.R.InputAchievementActions, foreign)
+				if foreign.R == nil {
+					foreign.R = &inputAchievementActionR{}
+				}
+				foreign.R.InputAchievement = local
 				break
 			}
 		}
@@ -687,6 +806,59 @@ func (o *InputAchievement) SetUser(ctx context.Context, exec boil.ContextExecuto
 		related.R.InputAchievements = append(related.R.InputAchievements, o)
 	}
 
+	return nil
+}
+
+// AddInputAchievementActions adds the given related objects to the existing relationships
+// of the input_achievement, optionally inserting them as new records.
+// Appends related to o.R.InputAchievementActions.
+// Sets related.R.InputAchievement appropriately.
+func (o *InputAchievement) AddInputAchievementActions(ctx context.Context, exec boil.ContextExecutor, insert bool, related ...*InputAchievementAction) error {
+	var err error
+	for _, rel := range related {
+		if insert {
+			rel.InputAchievementID = o.InputAchievementID
+			if err = rel.Insert(ctx, exec, boil.Infer()); err != nil {
+				return errors.Wrap(err, "failed to insert into foreign table")
+			}
+		} else {
+			updateQuery := fmt.Sprintf(
+				"UPDATE `input_achievement_actions` SET %s WHERE %s",
+				strmangle.SetParamNames("`", "`", 0, []string{"input_achievement_id"}),
+				strmangle.WhereClause("`", "`", 0, inputAchievementActionPrimaryKeyColumns),
+			)
+			values := []interface{}{o.InputAchievementID, rel.InputAchievementActionID}
+
+			if boil.IsDebug(ctx) {
+				writer := boil.DebugWriterFrom(ctx)
+				fmt.Fprintln(writer, updateQuery)
+				fmt.Fprintln(writer, values)
+			}
+			if _, err = exec.ExecContext(ctx, updateQuery, values...); err != nil {
+				return errors.Wrap(err, "failed to update foreign table")
+			}
+
+			rel.InputAchievementID = o.InputAchievementID
+		}
+	}
+
+	if o.R == nil {
+		o.R = &inputAchievementR{
+			InputAchievementActions: related,
+		}
+	} else {
+		o.R.InputAchievementActions = append(o.R.InputAchievementActions, related...)
+	}
+
+	for _, rel := range related {
+		if rel.R == nil {
+			rel.R = &inputAchievementActionR{
+				InputAchievement: o,
+			}
+		} else {
+			rel.R.InputAchievement = o
+		}
+	}
 	return nil
 }
 

@@ -494,6 +494,84 @@ func testOutputAchievementsInsertWhitelist(t *testing.T) {
 	}
 }
 
+func testOutputAchievementToManyOutputAchievementActions(t *testing.T) {
+	var err error
+	ctx := context.Background()
+	tx := MustTx(boil.BeginTx(ctx, nil))
+	defer func() { _ = tx.Rollback() }()
+
+	var a OutputAchievement
+	var b, c OutputAchievementAction
+
+	seed := randomize.NewSeed()
+	if err = randomize.Struct(seed, &a, outputAchievementDBTypes, true, outputAchievementColumnsWithDefault...); err != nil {
+		t.Errorf("Unable to randomize OutputAchievement struct: %s", err)
+	}
+
+	if err := a.Insert(ctx, tx, boil.Infer()); err != nil {
+		t.Fatal(err)
+	}
+
+	if err = randomize.Struct(seed, &b, outputAchievementActionDBTypes, false, outputAchievementActionColumnsWithDefault...); err != nil {
+		t.Fatal(err)
+	}
+	if err = randomize.Struct(seed, &c, outputAchievementActionDBTypes, false, outputAchievementActionColumnsWithDefault...); err != nil {
+		t.Fatal(err)
+	}
+
+	b.OutputAchievementID = a.OutputAchievementID
+	c.OutputAchievementID = a.OutputAchievementID
+
+	if err = b.Insert(ctx, tx, boil.Infer()); err != nil {
+		t.Fatal(err)
+	}
+	if err = c.Insert(ctx, tx, boil.Infer()); err != nil {
+		t.Fatal(err)
+	}
+
+	check, err := a.OutputAchievementActions().All(ctx, tx)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	bFound, cFound := false, false
+	for _, v := range check {
+		if v.OutputAchievementID == b.OutputAchievementID {
+			bFound = true
+		}
+		if v.OutputAchievementID == c.OutputAchievementID {
+			cFound = true
+		}
+	}
+
+	if !bFound {
+		t.Error("expected to find b")
+	}
+	if !cFound {
+		t.Error("expected to find c")
+	}
+
+	slice := OutputAchievementSlice{&a}
+	if err = a.L.LoadOutputAchievementActions(ctx, tx, false, (*[]*OutputAchievement)(&slice), nil); err != nil {
+		t.Fatal(err)
+	}
+	if got := len(a.R.OutputAchievementActions); got != 2 {
+		t.Error("number of eager loaded records wrong, got:", got)
+	}
+
+	a.R.OutputAchievementActions = nil
+	if err = a.L.LoadOutputAchievementActions(ctx, tx, true, &a, nil); err != nil {
+		t.Fatal(err)
+	}
+	if got := len(a.R.OutputAchievementActions); got != 2 {
+		t.Error("number of eager loaded records wrong, got:", got)
+	}
+
+	if t.Failed() {
+		t.Logf("%#v", check)
+	}
+}
+
 func testOutputAchievementToManyOutputAchievementTags(t *testing.T) {
 	var err error
 	ctx := context.Background()
@@ -572,6 +650,81 @@ func testOutputAchievementToManyOutputAchievementTags(t *testing.T) {
 	}
 }
 
+func testOutputAchievementToManyAddOpOutputAchievementActions(t *testing.T) {
+	var err error
+
+	ctx := context.Background()
+	tx := MustTx(boil.BeginTx(ctx, nil))
+	defer func() { _ = tx.Rollback() }()
+
+	var a OutputAchievement
+	var b, c, d, e OutputAchievementAction
+
+	seed := randomize.NewSeed()
+	if err = randomize.Struct(seed, &a, outputAchievementDBTypes, false, strmangle.SetComplement(outputAchievementPrimaryKeyColumns, outputAchievementColumnsWithoutDefault)...); err != nil {
+		t.Fatal(err)
+	}
+	foreigners := []*OutputAchievementAction{&b, &c, &d, &e}
+	for _, x := range foreigners {
+		if err = randomize.Struct(seed, x, outputAchievementActionDBTypes, false, strmangle.SetComplement(outputAchievementActionPrimaryKeyColumns, outputAchievementActionColumnsWithoutDefault)...); err != nil {
+			t.Fatal(err)
+		}
+	}
+
+	if err := a.Insert(ctx, tx, boil.Infer()); err != nil {
+		t.Fatal(err)
+	}
+	if err = b.Insert(ctx, tx, boil.Infer()); err != nil {
+		t.Fatal(err)
+	}
+	if err = c.Insert(ctx, tx, boil.Infer()); err != nil {
+		t.Fatal(err)
+	}
+
+	foreignersSplitByInsertion := [][]*OutputAchievementAction{
+		{&b, &c},
+		{&d, &e},
+	}
+
+	for i, x := range foreignersSplitByInsertion {
+		err = a.AddOutputAchievementActions(ctx, tx, i != 0, x...)
+		if err != nil {
+			t.Fatal(err)
+		}
+
+		first := x[0]
+		second := x[1]
+
+		if a.OutputAchievementID != first.OutputAchievementID {
+			t.Error("foreign key was wrong value", a.OutputAchievementID, first.OutputAchievementID)
+		}
+		if a.OutputAchievementID != second.OutputAchievementID {
+			t.Error("foreign key was wrong value", a.OutputAchievementID, second.OutputAchievementID)
+		}
+
+		if first.R.OutputAchievement != &a {
+			t.Error("relationship was not added properly to the foreign slice")
+		}
+		if second.R.OutputAchievement != &a {
+			t.Error("relationship was not added properly to the foreign slice")
+		}
+
+		if a.R.OutputAchievementActions[i*2] != first {
+			t.Error("relationship struct slice not set to correct value")
+		}
+		if a.R.OutputAchievementActions[i*2+1] != second {
+			t.Error("relationship struct slice not set to correct value")
+		}
+
+		count, err := a.OutputAchievementActions().Count(ctx, tx)
+		if err != nil {
+			t.Fatal(err)
+		}
+		if want := int64((i + 1) * 2); count != want {
+			t.Error("want", want, "got", count)
+		}
+	}
+}
 func testOutputAchievementToManyAddOpOutputAchievementTags(t *testing.T) {
 	var err error
 
@@ -830,7 +983,7 @@ func testOutputAchievementsSelect(t *testing.T) {
 }
 
 var (
-	outputAchievementDBTypes = map[string]string{`OutputAchievementID`: `int`, `ReferenceURL`: `varchar`, `Summary`: `varchar`, `CreatedBy`: `int`, `CreatedAt`: `timestamp`, `ModifiedBy`: `int`, `ModifiedAt`: `timestamp`, `OutputTime`: `varchar`, `UserID`: `int`}
+	outputAchievementDBTypes = map[string]string{`OutputAchievementID`: `int`, `ReferenceURL`: `varchar`, `Summary`: `varchar`, `CreatedBy`: `int`, `CreatedAt`: `timestamp`, `ModifiedBy`: `int`, `ModifiedAt`: `timestamp`, `OutputTime`: `int`, `UserID`: `int`}
 	_                        = bytes.MinRead
 )
 

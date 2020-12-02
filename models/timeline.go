@@ -25,11 +25,13 @@ type Timeline struct {
 	// カテゴリ
 	CategoryID   null.Int              `boil:"category_id" json:"category_id" toml:"category_id" yaml:"category_id"`
 	CategoryName null.String           `boil:"category_name" json:"category_name" toml:"category_name" yaml:"category_name"`
+	ColorCode    null.String           `boil:"color_code" json:"color_code" toml:"color_code" yaml:"color_code"`
 	Categories   []generated.MCategory `json:"categories"`
 	// アクション種類
-	ActionType null.String `boil:"action_type" json:"action_type" toml:"action_type" yaml:"action_type"`
-	Lgtm       bool        `json:"lgtm"`
-	Stock      bool        `json:"stock"`
+	InputAchievementActionID  null.Int    `boil:"input_achievement_action_id" json:"input_achievement_action_id"`
+	OutputAchievementActionID null.Int    `boil:"output_achievement_action_id" json:"output_achievement_action_id"`
+	ActionType                null.String `boil:"action_type" json:"action_type" toml:"action_type" yaml:"action_type"`
+	ActionTypes               []string    `boil:"action_types" json:"action_types" toml:"action_types" yaml:"action_types"`
 	// サマリー
 	InputPage  PageSummary `json:"input_page_summary"`
 	OutputPage PageSummary `json:"output_page_summary"`
