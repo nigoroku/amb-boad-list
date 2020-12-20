@@ -2,7 +2,6 @@ package service
 
 import (
 	"bytes"
-	"fmt"
 	"io/ioutil"
 	"net/http"
 	"strings"
@@ -38,7 +37,6 @@ func (s *ScrapingService) getPageSummary(url string) models.PageSummary {
 		// 存在しないURLの場合
 		return models.PageSummary{}
 	}
-	fmt.Println(url)
 	defer res.Body.Close()
 
 	buf, _ := ioutil.ReadAll(res.Body)
@@ -46,7 +44,6 @@ func (s *ScrapingService) getPageSummary(url string) models.PageSummary {
 	// 文字コード判定
 	det := chardet.NewTextDetector()
 	detRslt, _ := det.DetectBest(buf)
-	fmt.Println(detRslt.Charset)
 
 	// 文字コード変換
 	bReader := bytes.NewReader(buf)

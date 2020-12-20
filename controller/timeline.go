@@ -1,9 +1,11 @@
 package controller
 
 import (
+	"encoding/json"
 	"fmt"
 	"strconv"
 
+	"local.packages/models"
 	"local.packages/service"
 
 	"net/http"
@@ -32,9 +34,13 @@ func FindInputTimeline(c *gin.Context) {
 		return
 	}
 
+	j, _ := json.Marshal(&timeline)
+	var decoded []models.Timeline
+	json.Unmarshal([]byte(string(j)), &decoded)
+
 	c.JSON(http.StatusOK, gin.H{
 		"message":  "ok",
-		"timeline": timeline,
+		"timeline": decoded,
 	})
 }
 
@@ -51,6 +57,10 @@ func FindOutputTimeline(c *gin.Context) {
 		})
 		return
 	}
+
+	j, _ := json.Marshal(&timeline)
+	var decoded []models.Timeline
+	json.Unmarshal([]byte(string(j)), &decoded)
 
 	c.JSON(http.StatusOK, gin.H{
 		"message":  "ok",

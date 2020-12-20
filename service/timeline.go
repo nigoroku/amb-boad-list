@@ -110,6 +110,20 @@ func (tl *TimelineService) FindInputTimeline() ([]*models.Timeline, error) {
 
 		if _, ok := lines[tl.AchievementID]; !ok {
 
+			if tl.ActionType.String != "" {
+				tl.ActionTypes = append(tl.ActionTypes, tl.ActionType.String)
+				actionMap[tl.InputAchievementActionID] = tl.ActionType.String
+			}
+
+			if tl.CategoryID.Int != 0 {
+				var ca generated.MCategory
+				ca.CategoryID = tl.CategoryID.Int
+				ca.Name = tl.CategoryName.String
+				ca.ColorCode = tl.ColorCode
+				tl.Categories = append(tl.Categories, ca)
+				categoryMap[tl.CategoryID] = tl.CategoryName.String
+			}
+
 			if tl.ReferenceURL.String != "" {
 				// 参考URLからスクレイピングしてページ情報を取得する
 				scrapingService := NewScrapingService()
@@ -202,6 +216,20 @@ func (tl *TimelineService) FindOutputTimeline() ([]*models.Timeline, error) {
 		}
 
 		if _, ok := lines[tl.AchievementID]; !ok {
+
+			if tl.ActionType.String != "" {
+				tl.ActionTypes = append(tl.ActionTypes, tl.ActionType.String)
+				actionMap[tl.OutputAchievementActionID] = tl.ActionType.String
+			}
+
+			if tl.CategoryID.Int != 0 {
+				var ca generated.MCategory
+				ca.CategoryID = tl.CategoryID.Int
+				ca.Name = tl.CategoryName.String
+				ca.ColorCode = tl.ColorCode
+				tl.Categories = append(tl.Categories, ca)
+				categoryMap[tl.CategoryID] = tl.CategoryName.String
+			}
 
 			if tl.ReferenceURL.String != "" {
 				// 参考URLからスクレイピングしてページ情報を取得する

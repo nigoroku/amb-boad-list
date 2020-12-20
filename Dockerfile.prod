@@ -1,0 +1,17 @@
+FROM golang:1.14.10-alpine3.12 as builder
+
+WORKDIR /go/src/github.com/nigoroku/amb-boad-list
+ADD . /go/src/github.com/nigoroku/amb-boad-list
+
+ENV GO111MODULE=on
+
+RUN go mod download
+RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -ldflags="-w -s" -o /go/bin/amb-boad-list
+
+FROM alpine:latest
+
+RUN apk update && apk add --no-cache ca-certificates
+COPY --from=builder /go/bin/amb-boad-list /go/bin/amb-boad-list
+
+ENTRYPOINT ["/go/bin/amb-boad-list"]
+EXPOSE 8084
