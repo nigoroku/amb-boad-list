@@ -67,8 +67,8 @@ func (s *ScrapingService) getPageSummary(url string) models.PageSummary {
 			description, _ = s.Attr("content")
 		}
 	})
-	if utf8.RuneCountInString(description) > 300 {
-		description = string([]rune(description)[:300])
+	if utf8.RuneCountInString(description) > 100 {
+		description = string([]rune(description)[:100])
 	}
 	page.Description = description + "..."
 	page.Url = url
